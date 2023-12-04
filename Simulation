@@ -1,0 +1,46 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import odeint
+
+# Parameters for Kenya
+population = 48000000
+initial_infected = 344130
+initial_recovered = 337909
+initial_deaths = 5689
+
+# Initial conditions
+initial_susceptible = population - initial_infected - initial_recovered - initial_deaths
+initial_conditions = [initial_susceptible, initial_infected, initial_recovered, initial_deaths]
+
+# SIR model differential equations.
+def deriv(y, t, N, beta, gamma, delta):
+    S, I, R, D = y
+    dSdt = -beta * S * I / N
+    dIdt = beta * S * I / N - gamma * I
+    dRdt = gamma * I
+    dDdt = delta * I
+    return dSdt, dIdt, dRdt, dDdt
+
+# Time grid (in days)
+t = np.linspace(0, 365, 365)
+
+# Parameters: beta (transmission rate), gamma (recovery rate), delta (death rate)
+beta = 0.3
+gamma = 0.02
+delta = 0.005
+
+# Integrate the differential equations over the time grid
+result = odeint(deriv, initial_conditions, t, args=(population, beta, gamma, delta))
+S, I, R, D = result.T
+
+# Plot the results
+plt.figure(figsize=(10, 6))
+plt.plot(t, S, label='Susceptible')
+plt.plot(t, I, label='Infected')
+plt.plot(t, R, label='Recovered')
+plt.plot(t, D, label='Deaths')
+plt.xlabel('Days')
+plt.ylabel('Population')
+plt.title('Basic SIR Model for COVID-19 in Kenya')
+plt.legend()
+plt.show()
